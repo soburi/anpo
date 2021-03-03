@@ -1,0 +1,20 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: anpo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-03 17:14+0900\n"
+"PO-Revision-Date: 2019-10-03 17:29+0900\n"
+"Last-Translator: hoge <hoge@example.com>\n"
+"Language-Team: fuga <fuga@example.com>\n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2.4\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: kicad-source-mirror-master/common/dialogs/dialog_print_generic_base.cpp:92
+#: kicad-source-mirror-master/eeschema/dialogs/dialog_print_using_printer_base.cpp:41
+msgid "Page Setup..."
+msgstr "ページ設定..."
+
