@@ -1,0 +1,81 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "anpo"
+require "optparse"
+
+def ep(x)
+  $stderr.print(x.inspect)
+  $stderr.print("\n")
+end
+
+opt = OptionParser.new
+
+exclude_not_fuzzy = false
+exclude_not_translated = false
+exclude_translated = false
+exclude_fuzzy = false
+matchstr = false
+
+subtract  = false
+intersect = false
+
+argfile = nil
+
+opt.on("--str") { matchstr = true }
+
+opt.on("--intersect") { |_f| intersect = true }
+opt.on("--and")       { |_f| intersect = true }
+opt.on("-A")          { |_f| intersect = true }
+opt.on("--subtract")  { |_f| subtract  = true }
+opt.on("-S")          { |_f| subtract  = true }
+
+opt.on("-f") { |_x| exclude_not_fuzzy      = true }
+opt.on("-F") { |_x| exclude_fuzzy          = true }
+opt.on("-t") { |_x| exclude_not_translated = true }
+opt.on("-T") { |_x| exclude_translated     = true }
+
+argv = opt.parse!(ARGV)
+
+if intersect || subtract
+
+  inputs = []
+  inputs = if argv.length == 1
+             [argv[0], $stdin]
+           else
+             [argv[1], argv[0]]
+           end
+
+  File.open(inputs[0]) do |file|
+    Anpo::PO.parse(file) do |cmpfile|
+      infile = Anpo::PO.parse(inputs[1])
+
+      cmpfile.entries.delete_if(&:is_fuzzy?) if exclude_fuzzy
+      cmpfile.entries.delete_if { |e| !e.is_translated? } if exclude_not_translated
+
+      ids = []
+      infile.each do |ent|
+        ids.push(ent.msgid) if !cmpfile.msg[ent.msgid] || ((cmpfile.msg[ent.msgid] != ent.msgstr) && matchstr)
+      end
+
+      if subtract
+        infile.filter_by_ids(ids)
+      elsif intersect
+        infile.delete_by_ids(ids)
+      end
+
+      print infile
+    end
+  end
+
+else
+
+  Anpo::PO.parse(argv.empty? ? $stdin : ARGV[0]) do |po|
+    po.entries.delete_if { |e| !e.is_fuzzy? } if exclude_not_fuzzy
+    po.entries.delete_if(&:is_fuzzy?) if exclude_fuzzy
+    po.entries.delete_if { |e| !e.is_translated? } if exclude_translated
+    po.entries.delete_if(&:is_translated?) if exclude_not_translated
+    print po
+  end
+
+end
